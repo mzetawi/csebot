@@ -2289,3 +2289,356 @@ html,body,#root{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
   }
 }
 
+/* =========================================================
+   CSEBOT — FULL-CONTENT RESPONSIVE CARDS
+   Final overrides:
+   - Cards are slightly larger.
+   - No card content is hidden on small screens.
+   - Decorative visuals shrink instead of disappearing.
+   - Cards may grow vertically to preserve their content.
+   - Robot-safe side lanes remain intact.
+   ========================================================= */
+
+.card-slot.slot-0 {
+  width: clamp(240px, 24vw, 380px);
+  max-width: 31vw;
+}
+
+.card-slot.slot-1 {
+  width: clamp(230px, 23vw, 360px);
+  max-width: 30vw;
+}
+
+.card-slot.slot-2 {
+  width: clamp(245px, 25vw, 390px);
+  max-width: 32vw;
+}
+
+/* Never crop the card content. */
+.card-slot .cse-holo-card {
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+.card-slot .cse-holo-content {
+  min-height: 0;
+  height: auto;
+}
+
+/* Keep text readable instead of hiding it. */
+.card-slot .cse-holo-copy h2 {
+  font-size: clamp(1.12rem, 1.65vw, 1.8rem);
+}
+
+.card-slot .cse-holo-copy p {
+  display: block;
+  font-size: clamp(.72rem, .88vw, .9rem);
+  line-height: 1.55;
+}
+
+/* Decorative content remains visible and scales down naturally. */
+.card-slot .cse-holo-terminal,
+.card-slot .cse-holo-network,
+.card-slot .cse-holo-cloud,
+.card-slot .cse-holo-shield {
+  display: flex;
+}
+
+.card-slot .cse-holo-terminal {
+  display: block;
+}
+
+
+/* =========================================================
+   LAPTOP / TABLET
+   ========================================================= */
+
+@media (max-width: 1199px) and (min-width: 701px) {
+  .card-slot.slot-0 {
+    width: min(27vw, 320px);
+    max-width: 31vw;
+  }
+
+  .card-slot.slot-1 {
+    width: min(25vw, 300px);
+    max-width: 29vw;
+  }
+
+  .card-slot.slot-2 {
+    width: min(27vw, 330px);
+    max-width: 32vw;
+  }
+
+  .card-slot .cse-holo-card {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .card-slot .cse-holo-terminal {
+    display: block;
+    font-size: .58rem;
+    padding: .5rem .55rem;
+  }
+
+  .card-slot .cse-holo-network,
+  .card-slot .cse-holo-cloud {
+    display: flex;
+    transform: scale(.86);
+    transform-origin: center;
+    margin-top: .35rem;
+    margin-bottom: -.2rem;
+  }
+
+  .card-slot .cse-holo-shield {
+    display: grid;
+    transform: scale(.84);
+    transform-origin: center;
+    margin-top: .35rem;
+    margin-bottom: -.3rem;
+  }
+}
+
+
+/* =========================================================
+   SHORT LAPTOP
+   Preserve all information; compress spacing and visuals.
+   ========================================================= */
+
+@media (max-height: 700px) and (min-width: 701px) {
+  .card-slot.slot-0 {
+    width: min(25vw, 295px);
+  }
+
+  .card-slot.slot-1 {
+    width: min(23vw, 275px);
+  }
+
+  .card-slot.slot-2 {
+    width: min(26vw, 305px);
+  }
+
+  .card-slot .cse-holo-card {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .card-slot .cse-holo-content {
+    padding: .62rem .7rem .55rem;
+  }
+
+  .card-slot .cse-holo-terminal {
+    display: block;
+    font-size: .52rem;
+    line-height: 1.35;
+    margin-top: .4rem;
+    padding: .38rem .45rem;
+  }
+
+  .card-slot .cse-holo-network,
+  .card-slot .cse-holo-cloud {
+    display: flex;
+    transform: scale(.76);
+    transform-origin: center;
+    margin-top: .15rem;
+    margin-bottom: -.45rem;
+  }
+
+  .card-slot .cse-holo-shield {
+    display: grid;
+    transform: scale(.72);
+    transform-origin: center;
+    margin-top: .1rem;
+    margin-bottom: -.55rem;
+  }
+
+  .card-slot .cse-holo-bottom {
+    display: flex;
+  }
+}
+
+
+/* =========================================================
+   MOBILE PORTRAIT
+   Slightly larger cards while keeping full content.
+   ========================================================= */
+
+@media (max-width: 700px) and (orientation: portrait) {
+  .card-slot.slot-0 {
+    width: min(44vw, 190px);
+  }
+
+  .card-slot.slot-1 {
+    width: min(47vw, 205px);
+  }
+
+  .card-slot.slot-2 {
+    width: min(44vw, 190px);
+  }
+
+  .card-slot .cse-holo-card {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .card-slot .cse-holo-content {
+    padding: .58rem .62rem .52rem;
+  }
+
+  .card-slot .cse-holo-copy h2 {
+    font-size: clamp(.88rem, 3.8vw, 1.08rem);
+  }
+
+  .card-slot .cse-holo-copy p {
+    display: block;
+    font-size: clamp(.54rem, 2.25vw, .65rem);
+    line-height: 1.4;
+  }
+
+  .card-slot .cse-holo-terminal {
+    display: block;
+    font-size: .43rem;
+    line-height: 1.25;
+    padding: .3rem .35rem;
+    margin-top: .35rem;
+  }
+
+  .card-slot .cse-holo-network,
+  .card-slot .cse-holo-cloud {
+    display: flex;
+    transform: scale(.66);
+    transform-origin: center;
+    margin-top: -.05rem;
+    margin-bottom: -.65rem;
+  }
+
+  .card-slot .cse-holo-shield {
+    display: grid;
+    transform: scale(.64);
+    transform-origin: center;
+    margin-top: -.05rem;
+    margin-bottom: -.7rem;
+  }
+
+  .card-slot .cse-holo-bottom {
+    display: flex;
+  }
+
+  .card-slot .cse-holo-status {
+    display: flex;
+  }
+}
+
+
+/* =========================================================
+   PHONE / TABLET LANDSCAPE
+   Full content remains visible.
+   ========================================================= */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .card-slot.slot-0 {
+    width: min(24vw, 205px);
+    max-width: 26vw;
+  }
+
+  .card-slot.slot-1 {
+    width: min(22vw, 185px);
+    max-width: 24vw;
+  }
+
+  .card-slot.slot-2 {
+    width: min(25vw, 215px);
+    max-width: 27vw;
+  }
+
+  .card-slot .cse-holo-card {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .card-slot .cse-holo-content {
+    padding: .48rem .52rem .42rem;
+  }
+
+  .card-slot .cse-holo-copy h2 {
+    font-size: clamp(.78rem, 1.7vw, 1.02rem);
+  }
+
+  .card-slot .cse-holo-copy p {
+    display: block;
+    font-size: clamp(.47rem, 1.08vw, .59rem);
+    line-height: 1.3;
+  }
+
+  .card-slot .cse-holo-terminal {
+    display: block;
+    font-size: .4rem;
+    line-height: 1.2;
+    padding: .27rem .3rem;
+    margin-top: .25rem;
+  }
+
+  .card-slot .cse-holo-network,
+  .card-slot .cse-holo-cloud {
+    display: flex;
+    transform: scale(.6);
+    transform-origin: center;
+    margin-top: -.15rem;
+    margin-bottom: -.8rem;
+  }
+
+  .card-slot .cse-holo-shield {
+    display: grid;
+    transform: scale(.58);
+    transform-origin: center;
+    margin-top: -.2rem;
+    margin-bottom: -.85rem;
+  }
+
+  .card-slot .cse-holo-bottom {
+    display: flex;
+    padding-top: .25rem;
+  }
+
+  .card-slot .cse-holo-top-meta,
+  .card-slot .cse-holo-status {
+    display: flex;
+  }
+}
+
+
+/* =========================================================
+   EXTRA SMALL / EXTRA SHORT SCREENS
+   Preserve content by reducing decoration, never deleting it.
+   ========================================================= */
+
+@media (max-width: 430px), (max-height: 390px) and (orientation: landscape) {
+  .card-slot .cse-holo-copy p {
+    display: block;
+  }
+
+  .card-slot .cse-holo-bottom {
+    display: flex;
+  }
+
+  .card-slot .cse-holo-top-meta {
+    display: flex;
+  }
+
+  .card-slot .cse-holo-terminal {
+    display: block;
+  }
+
+  .card-slot .cse-holo-network,
+  .card-slot .cse-holo-cloud {
+    display: flex;
+  }
+
+  .card-slot .cse-holo-shield {
+    display: grid;
+  }
+}
+
