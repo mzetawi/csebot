@@ -1451,3 +1451,841 @@ html,body,#root{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
       1 !important;
   }
 }
+
+/* =========================================================
+   CSEBOT — RESPONSIVE SAFE CARD LAYOUT
+   Final overrides
+   Goal:
+   - Keep the robot's center lane clear.
+   - Scale cards to the viewport.
+   - Preserve card timing, slots and robot synchronization.
+   ========================================================= */
+
+.cards-composition {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/*
+  Keep a protected center lane for CSEBOT.
+  slot-0: left / upper
+  slot-1: top / center on roomy screens
+  slot-2: right / upper
+*/
+.card-slot {
+  position: absolute;
+  width: clamp(220px, 24vw, 360px);
+  max-width: min(360px, 31vw);
+  pointer-events: none;
+  will-change: transform, opacity, filter;
+  transition:
+    left .5s ease,
+    right .5s ease,
+    top .5s ease,
+    bottom .5s ease,
+    width .5s ease,
+    max-width .5s ease,
+    opacity .5s ease,
+    filter .5s ease;
+}
+
+/* LEFT SAFE LANE */
+.card-slot.slot-0 {
+  left: clamp(14px, 3vw, 52px);
+  right: auto;
+  top: 27%;
+  width: clamp(220px, 23vw, 350px);
+  max-width: min(350px, 30vw);
+}
+
+/* TOP SAFE LANE — stays above the robot on taller displays */
+.card-slot.slot-1 {
+  left: 50%;
+  right: auto;
+  top: clamp(72px, 9vh, 112px);
+  width: clamp(220px, 25vw, 360px);
+  max-width: min(360px, 34vw);
+  transform: translateX(-50%);
+}
+
+/* RIGHT SAFE LANE */
+.card-slot.slot-2 {
+  left: auto;
+  right: clamp(14px, 3vw, 52px);
+  top: 30%;
+  width: clamp(230px, 24vw, 370px);
+  max-width: min(370px, 31vw);
+}
+
+/*
+  Keep active cards readable without enlarging into the robot lane.
+*/
+.card-slot.is-active {
+  z-index: 5;
+  opacity: 1;
+  filter: none;
+}
+
+.card-slot.is-previous {
+  z-index: 3;
+  opacity: .58;
+  filter: saturate(.76) brightness(.82);
+}
+
+/*
+  Override the earlier card width/min-height rules.
+  Width is now governed by the slot, not by a fixed 30rem card.
+*/
+.card-slot .cse-holo-card {
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  max-height: min(44vh, 360px);
+  overflow: hidden;
+}
+
+.card-slot .cse-holo-content {
+  min-height: 0;
+  padding:
+    clamp(.78rem, 1.2vw, 1.2rem)
+    clamp(.82rem, 1.35vw, 1.3rem)
+    clamp(.68rem, 1vw, 1rem);
+}
+
+.card-slot .cse-holo-copy h2 {
+  font-size: clamp(1.05rem, 1.55vw, 1.65rem);
+  line-height: 1.25;
+}
+
+.card-slot .cse-holo-copy p {
+  max-width: 100%;
+  margin-top: .45rem;
+  font-size: clamp(.67rem, .82vw, .84rem);
+  line-height: 1.55;
+}
+
+.card-slot .cse-holo-eyebrow {
+  margin-bottom: .38rem;
+  font-size: clamp(.46rem, .52vw, .58rem);
+  letter-spacing: .09em;
+}
+
+.card-slot .cse-holo-divider {
+  margin: .62rem 0 .78rem;
+}
+
+.card-slot .cse-holo-icon-shell {
+  width: clamp(34px, 3vw, 42px);
+  height: clamp(34px, 3vw, 42px);
+}
+
+/*
+  Keep decorative visuals compact so they never make a card
+  taller than the available side lane.
+*/
+.card-slot .cse-holo-terminal {
+  margin-top: .65rem;
+  padding: .58rem .68rem;
+  font-size: clamp(.54rem, .62vw, .65rem);
+  line-height: 1.5;
+}
+
+.card-slot .cse-holo-network,
+.card-slot .cse-holo-cloud {
+  min-height: 42px;
+  margin-top: .55rem;
+}
+
+.card-slot .cse-holo-shield {
+  width: 58px;
+  height: 58px;
+  margin-top: .55rem;
+}
+
+.card-slot .cse-holo-bottom {
+  padding-top: .55rem;
+}
+
+
+/* =========================================================
+   LARGE / WIDE DESKTOPS
+   ========================================================= */
+
+@media (min-width: 1400px) and (min-height: 800px) {
+  .card-slot.slot-0 {
+    left: 4%;
+    top: 28%;
+    width: min(23vw, 380px);
+    max-width: 380px;
+  }
+
+  .card-slot.slot-1 {
+    top: 9%;
+    width: min(25vw, 390px);
+    max-width: 390px;
+  }
+
+  .card-slot.slot-2 {
+    right: 4%;
+    top: 31%;
+    width: min(24vw, 390px);
+    max-width: 390px;
+  }
+
+  .card-slot .cse-holo-card {
+    max-height: 390px;
+  }
+}
+
+
+/* =========================================================
+   LAPTOP / TABLET LANDSCAPE
+   Keep a wider empty center lane for the robot.
+   ========================================================= */
+
+@media (max-width: 1199px) and (min-width: 701px) {
+  .card-slot {
+    width: clamp(205px, 25vw, 300px);
+    max-width: 29vw;
+  }
+
+  .card-slot.slot-0 {
+    left: 12px;
+    top: 28%;
+    width: clamp(205px, 25vw, 300px);
+    max-width: 29vw;
+  }
+
+  .card-slot.slot-1 {
+    top: 64px;
+    width: clamp(215px, 27vw, 320px);
+    max-width: 32vw;
+  }
+
+  .card-slot.slot-2 {
+    right: 12px;
+    top: 31%;
+    width: clamp(210px, 25vw, 310px);
+    max-width: 29vw;
+  }
+
+  .card-slot .cse-holo-card {
+    max-height: min(42vh, 320px);
+  }
+
+  .card-slot .cse-holo-content {
+    padding: .78rem .85rem .68rem;
+  }
+
+  .card-slot .cse-holo-terminal {
+    display: none;
+  }
+}
+
+
+/* =========================================================
+   SHORT LAPTOP / LANDSCAPE DISPLAY
+   Move slot-1 away from the robot's head and body.
+   ========================================================= */
+
+@media (max-height: 700px) and (min-width: 701px) {
+  .card-slot.slot-0 {
+    left: 3.2%;
+    top: 24%;
+    width: min(24vw, 290px);
+    max-width: 29vw;
+  }
+
+  .card-slot.slot-1 {
+    left: 4.8%;
+    right: auto;
+    top: auto;
+    bottom: 9%;
+    width: min(22vw, 270px);
+    max-width: 27vw;
+    transform: none;
+  }
+
+  .card-slot.slot-2 {
+    right: 3.2%;
+    top: 28%;
+    width: min(25vw, 305px);
+    max-width: 30vw;
+  }
+
+  .card-slot .cse-holo-card {
+    max-height: min(41vh, 275px);
+  }
+
+  .card-slot .cse-holo-content {
+    padding: .66rem .75rem .58rem;
+  }
+
+  .card-slot .cse-holo-divider {
+    margin: .4rem 0 .5rem;
+  }
+
+  .card-slot .cse-holo-copy h2 {
+    font-size: clamp(.98rem, 1.45vw, 1.35rem);
+  }
+
+  .card-slot .cse-holo-copy p {
+    margin-top: .28rem;
+    font-size: clamp(.62rem, .76vw, .76rem);
+    line-height: 1.4;
+  }
+
+  .card-slot .cse-holo-terminal,
+  .card-slot .cse-holo-network,
+  .card-slot .cse-holo-cloud,
+  .card-slot .cse-holo-shield {
+    display: none;
+  }
+
+  .card-slot .cse-holo-bottom {
+    padding-top: .35rem;
+  }
+}
+
+
+/* =========================================================
+   MOBILE / PORTRAIT
+   The center of the screen remains as clear as possible.
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .cards-composition {
+    overflow: hidden;
+  }
+
+  .card-slot {
+    width: min(42vw, 178px);
+    max-width: none;
+  }
+
+  .card-slot.slot-0 {
+    left: max(5px, env(safe-area-inset-left));
+    right: auto;
+    top: 20%;
+    width: min(42vw, 178px);
+    max-width: none;
+  }
+
+  .card-slot.slot-1 {
+    left: 50%;
+    right: auto;
+    top: max(58px, calc(env(safe-area-inset-top) + 48px));
+    bottom: auto;
+    width: min(55vw, 230px);
+    max-width: none;
+    transform: translateX(-50%);
+  }
+
+  .card-slot.slot-2 {
+    left: auto;
+    right: max(5px, env(safe-area-inset-right));
+    top: 20%;
+    width: min(42vw, 178px);
+    max-width: none;
+  }
+
+  .card-slot .cse-holo-card {
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    max-height: min(27vh, 215px);
+    border-radius: 13px;
+  }
+
+  .card-slot .cse-holo-content {
+    min-height: 0;
+    padding: .55rem .58rem .5rem;
+  }
+
+  .card-slot .cse-holo-top {
+    gap: .3rem;
+  }
+
+  .card-slot .cse-holo-icon-shell {
+    width: 29px;
+    height: 29px;
+    border-radius: 8px;
+  }
+
+  .card-slot .cse-holo-icon-shell svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .card-slot .cse-holo-icon-ring {
+    width: 21px;
+    height: 21px;
+  }
+
+  .card-slot .cse-holo-top-meta {
+    gap: .2rem;
+    font-size: .38rem;
+  }
+
+  .card-slot .cse-holo-system {
+    display: none;
+  }
+
+  .card-slot .cse-holo-divider {
+    margin: .32rem 0 .42rem;
+  }
+
+  .card-slot .cse-holo-eyebrow {
+    margin-bottom: .2rem;
+    font-size: .38rem;
+    letter-spacing: .04em;
+  }
+
+  .card-slot .cse-holo-copy h2 {
+    font-size: clamp(.8rem, 3.6vw, 1.02rem);
+    line-height: 1.18;
+  }
+
+  .card-slot .cse-holo-copy p {
+    margin-top: .24rem;
+    font-size: clamp(.5rem, 2.15vw, .62rem);
+    line-height: 1.36;
+  }
+
+  .card-slot .cse-holo-terminal,
+  .card-slot .cse-holo-network,
+  .card-slot .cse-holo-cloud,
+  .card-slot .cse-holo-shield {
+    display: none;
+  }
+
+  .card-slot .cse-holo-bottom {
+    padding-top: .32rem;
+  }
+
+  .card-slot .cse-holo-status {
+    font-size: .34rem;
+    letter-spacing: .05em;
+  }
+
+  .card-slot .cse-holo-signal {
+    transform: scale(.68);
+    transform-origin: left center;
+  }
+
+  .card-slot .cse-holo-side-dots {
+    display: none;
+  }
+
+  .card-slot .cse-holo-corner {
+    width: 18px;
+    height: 18px;
+  }
+
+  .card-slot .cse-holo-corner::before {
+    width: 14px;
+  }
+
+  .card-slot .cse-holo-corner::after {
+    height: 14px;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 430px) {
+  .card-slot.slot-0,
+  .card-slot.slot-2 {
+    width: min(41vw, 158px);
+  }
+
+  .card-slot.slot-0 {
+    left: 4px;
+    top: 18%;
+  }
+
+  .card-slot.slot-2 {
+    right: 4px;
+    top: 18%;
+  }
+
+  .card-slot.slot-1 {
+    top: max(52px, calc(env(safe-area-inset-top) + 42px));
+    width: min(54vw, 205px);
+  }
+
+  .card-slot .cse-holo-card {
+    max-height: 190px;
+  }
+
+  .card-slot .cse-holo-content {
+    padding: .45rem .48rem .42rem;
+  }
+
+  .card-slot .cse-holo-copy h2 {
+    font-size: .78rem;
+  }
+
+  .card-slot .cse-holo-copy p {
+    font-size: .49rem;
+  }
+}
+
+
+/* =========================================================
+   PHONE / SMALL TABLET LANDSCAPE
+   This is the most important layout for the AR experience.
+   Robot gets the central 40–45% of the viewport.
+   ========================================================= */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .card-slot {
+    width: min(25vw, 220px);
+    max-width: 27vw;
+  }
+
+  .card-slot.slot-0 {
+    left: max(7px, env(safe-area-inset-left));
+    right: auto;
+    top: 25%;
+    width: min(24vw, 210px);
+    max-width: 27vw;
+  }
+
+  /*
+    Put the second card in the lower-left lane instead of
+    over the robot's face/chest.
+  */
+  .card-slot.slot-1 {
+    left: max(10px, calc(env(safe-area-inset-left) + 4px));
+    right: auto;
+    top: auto;
+    bottom: max(8%, calc(env(safe-area-inset-bottom) + 25px));
+    width: min(22vw, 195px);
+    max-width: 25vw;
+    transform: none;
+  }
+
+  .card-slot.slot-2 {
+    left: auto;
+    right: max(7px, env(safe-area-inset-right));
+    top: 28%;
+    width: min(25vw, 220px);
+    max-width: 28vw;
+  }
+
+  .card-slot .cse-holo-card {
+    max-height: min(42vh, 190px);
+    border-radius: 10px;
+  }
+
+  .card-slot .cse-holo-content {
+    padding: .48rem .55rem .42rem;
+  }
+
+  .card-slot .cse-holo-icon-shell {
+    width: 27px;
+    height: 27px;
+  }
+
+  .card-slot .cse-holo-copy h2 {
+    font-size: clamp(.76rem, 1.65vw, 1rem);
+    line-height: 1.14;
+  }
+
+  .card-slot .cse-holo-copy p {
+    margin-top: .2rem;
+    font-size: clamp(.48rem, 1.1vw, .62rem);
+    line-height: 1.28;
+  }
+
+  .card-slot .cse-holo-eyebrow {
+    font-size: .36rem;
+    margin-bottom: .15rem;
+  }
+
+  .card-slot .cse-holo-divider {
+    margin: .26rem 0 .33rem;
+  }
+
+  .card-slot .cse-holo-terminal,
+  .card-slot .cse-holo-network,
+  .card-slot .cse-holo-cloud,
+  .card-slot .cse-holo-shield {
+    display: none;
+  }
+
+  .card-slot .cse-holo-bottom {
+    padding-top: .25rem;
+  }
+
+  .card-slot .cse-holo-status {
+    font-size: .31rem;
+  }
+
+  .card-slot .cse-holo-side-dots {
+    display: none;
+  }
+
+  .card-slot .cse-holo-corner {
+    transform: scale(.72);
+  }
+}
+
+
+/* =========================================================
+   EXTRA SHORT LANDSCAPE
+   ========================================================= */
+
+@media (max-height: 390px) and (orientation: landscape) {
+  .card-slot.slot-0 {
+    top: 23%;
+    width: min(22vw, 185px);
+  }
+
+  .card-slot.slot-1 {
+    bottom: max(7%, calc(env(safe-area-inset-bottom) + 21px));
+    width: min(20vw, 170px);
+  }
+
+  .card-slot.slot-2 {
+    top: 25%;
+    width: min(23vw, 195px);
+  }
+
+  .card-slot .cse-holo-card {
+    max-height: 150px;
+  }
+
+  .card-slot .cse-holo-copy p {
+    display: none;
+  }
+
+  .card-slot .cse-holo-bottom {
+    display: none;
+  }
+
+  .card-slot .cse-holo-top-meta {
+    display: none;
+  }
+}
+
+/* =========================================================
+   CSEBOT — FINAL ROBOT-SAFE CARD POSITIONS
+   Keeps ALL cards away from the robot's head/body.
+   This block intentionally comes last and overrides
+   previous slot positioning rules only.
+   ========================================================= */
+
+/* Desktop / default */
+.card-slot.slot-0 {
+  left: clamp(14px, 3vw, 48px);
+  right: auto;
+  top: 34%;
+  bottom: auto;
+  width: clamp(215px, 22vw, 335px);
+  max-width: 28vw;
+  transform: none;
+}
+
+.card-slot.slot-1 {
+  left: clamp(18px, 4.5vw, 70px);
+  right: auto;
+  top: auto;
+  bottom: clamp(70px, 11vh, 120px);
+  width: clamp(205px, 21vw, 315px);
+  max-width: 27vw;
+  transform: none;
+}
+
+.card-slot.slot-2 {
+  left: auto;
+  right: clamp(14px, 3vw, 48px);
+  top: 34%;
+  bottom: auto;
+  width: clamp(220px, 23vw, 345px);
+  max-width: 29vw;
+  transform: none;
+}
+
+/* Previous cards stay smaller but in the same safe lane */
+.card-slot.slot-0.is-previous,
+.card-slot.slot-1.is-previous,
+.card-slot.slot-2.is-previous {
+  transform: scale(.88);
+  transform-origin: center;
+}
+
+.card-slot.slot-0.is-active,
+.card-slot.slot-1.is-active,
+.card-slot.slot-2.is-active {
+  transform: scale(1);
+}
+
+
+/* Wide screens */
+@media (min-width: 1400px) and (min-height: 800px) {
+  .card-slot.slot-0 {
+    left: 4%;
+    top: 35%;
+    width: min(22vw, 350px);
+    max-width: 350px;
+  }
+
+  .card-slot.slot-1 {
+    left: 5%;
+    bottom: 9%;
+    width: min(20vw, 320px);
+    max-width: 320px;
+  }
+
+  .card-slot.slot-2 {
+    right: 4%;
+    top: 35%;
+    width: min(23vw, 365px);
+    max-width: 365px;
+  }
+}
+
+
+/* Laptop / tablet landscape */
+@media (max-width: 1199px) and (min-width: 701px) {
+  .card-slot.slot-0 {
+    left: 10px;
+    top: 36%;
+    width: min(25vw, 285px);
+    max-width: 28vw;
+  }
+
+  .card-slot.slot-1 {
+    left: 14px;
+    top: auto;
+    bottom: 9%;
+    width: min(23vw, 265px);
+    max-width: 26vw;
+  }
+
+  .card-slot.slot-2 {
+    right: 10px;
+    top: 36%;
+    width: min(25vw, 295px);
+    max-width: 29vw;
+  }
+}
+
+
+/* Short laptop screens */
+@media (max-height: 700px) and (min-width: 701px) {
+  .card-slot.slot-0 {
+    left: 2.5%;
+    top: 34%;
+    width: min(23vw, 270px);
+  }
+
+  .card-slot.slot-1 {
+    left: 3.5%;
+    top: auto;
+    bottom: 7%;
+    width: min(21vw, 245px);
+  }
+
+  .card-slot.slot-2 {
+    right: 2.5%;
+    top: 34%;
+    width: min(24vw, 285px);
+  }
+}
+
+
+/* Mobile portrait:
+   never place a card over the top-center where the robot head lives.
+*/
+@media (max-width: 700px) and (orientation: portrait) {
+  .card-slot.slot-0 {
+    left: max(4px, env(safe-area-inset-left));
+    right: auto;
+    top: 31%;
+    bottom: auto;
+    width: min(39vw, 165px);
+    max-width: none;
+  }
+
+  .card-slot.slot-1 {
+    left: max(6px, env(safe-area-inset-left));
+    right: auto;
+    top: auto;
+    bottom: max(78px, calc(env(safe-area-inset-bottom) + 68px));
+    width: min(42vw, 180px);
+    max-width: none;
+  }
+
+  .card-slot.slot-2 {
+    left: auto;
+    right: max(4px, env(safe-area-inset-right));
+    top: 31%;
+    bottom: auto;
+    width: min(39vw, 165px);
+    max-width: none;
+  }
+}
+
+
+/* Mobile / tablet landscape:
+   reserve the middle 46% of the screen for CSEBOT.
+*/
+@media (max-height: 500px) and (orientation: landscape) {
+  .card-slot.slot-0 {
+    left: max(6px, env(safe-area-inset-left));
+    right: auto;
+    top: 32%;
+    bottom: auto;
+    width: min(22vw, 185px);
+    max-width: 24vw;
+  }
+
+  .card-slot.slot-1 {
+    left: max(8px, env(safe-area-inset-left));
+    right: auto;
+    top: auto;
+    bottom: max(24px, calc(env(safe-area-inset-bottom) + 18px));
+    width: min(20vw, 170px);
+    max-width: 22vw;
+  }
+
+  .card-slot.slot-2 {
+    left: auto;
+    right: max(6px, env(safe-area-inset-right));
+    top: 32%;
+    bottom: auto;
+    width: min(23vw, 195px);
+    max-width: 25vw;
+  }
+}
+
+
+/* Extra-short landscape */
+@media (max-height: 390px) and (orientation: landscape) {
+  .card-slot.slot-0 {
+    top: 31%;
+    width: min(20vw, 165px);
+  }
+
+  .card-slot.slot-1 {
+    bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px));
+    width: min(18vw, 150px);
+  }
+
+  .card-slot.slot-2 {
+    top: 31%;
+    width: min(21vw, 175px);
+  }
+}
+
