@@ -1,0 +1,38 @@
+{
+  "welcome": [
+    "Hey! I'm C S E Bot. Let me take you on a quick tour of Computer Systems Engineering at Palestine Technical University, Kadoorie.",
+    "Let's bring it closer. Ready to see how an idea becomes a working system?"
+  ],
+  "major": [
+    "Enjoy coding and building applications? In this tour, we'll focus on software: understanding a problem, and building a useful system to solve it.",
+    "Along the way, an engineering foundation helps you understand how software and devices work together."
+  ],
+  "software": [
+    "Behind every application you use, there's work you don't see. Services process requests, data gets stored, and information moves between different parts of the system.",
+    "That's where software development, back end systems, and databases come in. It's about more than a good looking screen. It's about building something people can rely on."
+  ],
+  "networks": [
+    "So, how does information get there? Networks connect devices and services. Security helps protect those connections, and the information travelling through them.",
+    "With more learning and practice, you can also explore cloud services, and the tools used to run and improve software systems."
+  ],
+  "hardware": [
+    "An engineering foundation also helps you understand the hardware, and how your software interacts with a real device."
+  ],
+  "careers": [
+    "There are different paths to explore: software development, web applications, databases, networks, and network security.",
+    "Choose something that interests you, and try building a small project. Your skills, training, and practical experience will help you find your own direction. You don't have to figure it all out on day one."
+  ],
+  "club": [
+    "But the journey is about more than lectures. That's where the Computer Engineering Club comes in, and the students you can learn alongside.",
+    "The club's website shares workshops, training, and technical competitions. It's a place to ask questions, get involved, and learn from other people's experience."
+  ],
+  "website": [
+    "Instead of just telling you about it, let me show you. Here's your window into the Computer Engineering Club website.",
+    "You can explore activities and articles, and find educational resources. When you're ready to see the latest updates, open the website using the link in front of you.",
+    "Take your time after the tour. Find what interests you, and let curiosity be your first step."
+  ],
+  "final": [
+    "That was a quick introduction. The rest is yours to discover. Ask questions, try things out, and don't be afraid to start with a small idea.",
+    "Welcome to Computer Systems Engineering. The next system that makes a difference might just begin with your idea."
+  ]
+}
