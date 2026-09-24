@@ -11,6 +11,6 @@ export function ClubWebsiteHologram(){
  <div ref={frame} className="club-window spatial-browser"><div className="frame-emitters"><i/><i/><i/><i/></div>
  <div className="browser-bar"><div className="browser-dots"><i/><i/><i/></div><span><LockKeyhole size={10}/>{new URL(CLUB_WEBSITE_URL).hostname}</span><Globe size={13}/></div>
  <div className="website-image-layer" ref={picture}>{!failed?<img src={EXPERIENCE.clubImage} alt="الصورة الأصلية لموقع نادي هندسة أنظمة الحاسوب: الدورات والفعاليات والمقالات والمصادر التعليمية" onError={()=>setFailed(true)} draggable={false}/>:<div className="website-image-error" dir="rtl">نادي هندسة الحاسوب</div>}</div>
- <div className="website-glass"/><div className="website-link"><span>CSE CLUB // PTUK</span><a href={CLUB_WEBSITE_URL} target="_blank" rel="noopener noreferrer">زيارة موقع النادي <ArrowUpRight size={15}/></a></div>
+ <div className="website-glass"/><div className="website-link"><span>CSE CLUB // PTUK</span><a href={CLUB_WEBSITE_URL} target="_blank" rel="noopener noreferrer">  جميع روابط النادي <ArrowUpRight size={15}/></a></div>
  </div></motion.div>;
 }
