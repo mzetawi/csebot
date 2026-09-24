@@ -28,6 +28,7 @@ type GroupRef = RefObject<Group | null>;
 
 type Rig = {
   upper: GroupRef;
+
   head: GroupRef;
 
   left: GroupRef;
@@ -62,33 +63,49 @@ export function useRobotAnimation(rig: Rig) {
   useFrame((_, rawDelta) => {
     const s = useExperience.getState();
 
-    const dt = Math.min(rawDelta, 0.05);
+    const dt = Math.min(
+      rawDelta,
+      0.05
+    );
 
-    const c = controllers.current;
+    const c =
+      controllers.current;
 
     /**
-     * Reset animation controllers on replay.
+     * --------------------------------
+     * RESET ON REPLAY
+     * --------------------------------
      */
-    if (c.version !== s.replayVersion) {
-      c.version = s.replayVersion;
+    if (
+      c.version !==
+      s.replayVersion
+    ) {
+      c.version =
+        s.replayVersion;
 
-      c.gesture = new RobotGestureController();
+      c.gesture =
+        new RobotGestureController();
 
-      c.mouth = new RobotMouthController();
+      c.mouth =
+        new RobotMouthController();
 
-      c.look = new RobotLookController();
+      c.look =
+        new RobotLookController();
 
       c.time = 0;
 
       c.nextBlink = 3;
-
       c.blinkAt = -10;
     }
 
     /**
-     * While paused:
-     * mouth can still smoothly close,
-     * but all body motion freezes.
+     * --------------------------------
+     * AUDIO STATE
+     * --------------------------------
+     *
+     * أثناء Pause:
+     * نخلي الفم يرجع يغلق،
+     * لكن نوقف بقية حركة الجسم.
      */
     const speech = s.paused
       ? {
@@ -98,21 +115,76 @@ export function useRobotAnimation(rig: Rig) {
       : audioSync.state;
 
     /**
-     * Mouth movement driven by recorded audio amplitude.
+     * --------------------------------
+     * MOUTH
+     * --------------------------------
      */
-    const opening = c.mouth.update(
-      dt,
-      speech
-    );
+    const opening =
+      c.mouth.update(
+        dt,
+        speech
+      );
 
+    /**
+     * مقدار النشاط أثناء الكلام.
+     *
+     * نستخدم amplitude حتى لا تكون
+     * الحركة ثابتة أو ميكانيكية.
+     */
+    const speakingAmount =
+      speech.isSpeaking
+        ? Math.min(
+            1,
+            0.35 +
+              speech.audioAmplitude *
+                1.8
+          )
+        : 0;
+
+    /**
+     * حركة الفم.
+     *
+     * فتح الفم أوضح أثناء الكلام
+     * لكنه يبقى Smooth.
+     */
     if (rig.mouth.current) {
+      const targetMouthY =
+        speech.isSpeaking
+          ? 1 +
+            opening *
+              6.5
+          : 1;
+
+      const targetMouthX =
+        speech.isSpeaking
+          ? 1 -
+            opening *
+              0.15
+          : 1;
+
       rig.mouth.current.scale.y =
-        1 + opening * 5;
+        MathUtils.damp(
+          rig.mouth.current
+            .scale.y,
+          targetMouthY,
+          14,
+          dt
+        );
 
       rig.mouth.current.scale.x =
-        1 - opening * 0.2;
+        MathUtils.damp(
+          rig.mouth.current
+            .scale.x,
+          targetMouthX,
+          14,
+          dt
+        );
     }
 
+    /**
+     * أثناء Pause:
+     * نوقف الجسم بعد تحديث الفم.
+     */
     if (s.paused) {
       return;
     }
@@ -133,12 +205,13 @@ export function useRobotAnimation(rig: Rig) {
       );
 
     /**
-     * Gesture selection.
+     * --------------------------------
+     * GESTURE
+     * --------------------------------
      *
-     * p.attention:
-     * 0 = first card side
-     * 1 = center
-     * 2 = opposite card side
+     * نفس attention القادم من
+     * PresentationController
+     * هو المستخدم للكارد والروبوت.
      */
     const gesture =
       c.gesture.update(dt, {
@@ -163,53 +236,126 @@ export function useRobotAnimation(rig: Rig) {
       });
 
     /**
-     * Head follows active card direction.
+     * --------------------------------
+     * HEAD
+     * --------------------------------
+     *
+     * أثناء الكلام:
+     * nod صغير جدًا يعطي إحساس
+     * أن الرأس متفاعل مع الجملة.
+     *
+     * أثناء ظهور كارد:
+     * الرأس يبقى يتجه للكارد.
      */
     if (rig.head.current) {
+      const speechNod =
+        speech.isSpeaking &&
+        !reduced
+          ? Math.sin(
+              c.time * 3.1
+            ) *
+            0.018 *
+            speakingAmount
+          : 0;
+
       c.look.update(
-        rig.head.current.quaternion,
+        rig.head.current
+          .quaternion,
         dt,
+
         s.completed
           ? null
           : p.attention,
-        gesture.nod,
+
+        gesture.nod +
+          speechNod,
+
         reduced
       );
     }
 
     /**
-     * Upper body lean and subtle floating sway.
+     * --------------------------------
+     * UPPER BODY
+     * --------------------------------
+     *
+     * هنا نضيف:
+     *
+     * 1. Lean من gesture
+     * 2. حركة تنفس/حديث بسيطة
+     * 3. sway خفيف
+     *
+     * بدون مبالغة.
      */
     if (rig.upper.current) {
+      const speakingLean =
+        speech.isSpeaking &&
+        !reduced
+          ? Math.sin(
+              c.time * 2.2
+            ) *
+            0.008 *
+            speakingAmount
+          : 0;
+
+      const speakingSway =
+        speech.isSpeaking &&
+        !reduced
+          ? Math.sin(
+              c.time * 1.7
+            ) *
+            0.012 *
+            speakingAmount
+          : 0;
+
+      const idleSway =
+        reduced
+          ? 0
+          : Math.sin(
+              c.time * 0.37
+            ) * 0.006;
+
       rig.upper.current.rotation.x =
         MathUtils.damp(
-          rig.upper.current.rotation.x,
-          gesture.lean,
+          rig.upper.current
+            .rotation.x,
+
+          gesture.lean +
+            speakingLean,
+
           4,
           dt
         );
 
       rig.upper.current.rotation.z =
         MathUtils.damp(
-          rig.upper.current.rotation.z,
-          reduced
-            ? 0
-            : Math.sin(
-                c.time * 0.37
-              ) * 0.006,
+          rig.upper.current
+            .rotation.z,
+
+          idleSway +
+            speakingSway,
+
           3,
           dt
         );
     }
 
     /**
-     * Arms.
+     * --------------------------------
+     * ARMS
+     * --------------------------------
+     *
+     * نحافظ على GestureController
+     * لأنه صار متزامن مع الكاردات.
      */
     if (rig.left.current) {
       rig.left.current.rotation.z =
         MathUtils.damp(
-          rig.left.current.rotation.z,
+          rig.left.current
+            .rotation.z,
+
           gesture.left,
+
           4,
           dt
         );
@@ -218,50 +364,66 @@ export function useRobotAnimation(rig: Rig) {
     if (rig.right.current) {
       rig.right.current.rotation.z =
         MathUtils.damp(
-          rig.right.current.rotation.z,
+          rig.right.current
+            .rotation.z,
+
           gesture.right,
+
           4,
           dt
         );
     }
 
     /**
-     * Elbows.
+     * --------------------------------
+     * ELBOWS
+     * --------------------------------
      */
     for (const elbow of [
       rig.leftElbow,
       rig.rightElbow,
     ]) {
-      if (!elbow.current) continue;
+      if (!elbow.current) {
+        continue;
+      }
 
       elbow.current.rotation.x =
         MathUtils.damp(
-          elbow.current.rotation.x,
+          elbow.current
+            .rotation.x,
+
           gesture.elbow,
+
           4,
           dt
         );
 
       elbow.current.rotation.y =
         MathUtils.damp(
-          elbow.current.rotation.y,
+          elbow.current
+            .rotation.y,
+
           gesture.state ===
             "PRESENTING"
             ? 0.12
             : 0,
+
           4,
           dt
         );
     }
 
     /**
-     * Blink timing.
+     * --------------------------------
+     * BLINK
+     * --------------------------------
      */
     if (
       c.time >
       c.nextBlink
     ) {
-      c.blinkAt = c.time;
+      c.blinkAt =
+        c.time;
 
       c.nextBlink =
         c.time +
@@ -283,14 +445,15 @@ export function useRobotAnimation(rig: Rig) {
         : 0;
 
     /**
-     * Eyes:
+     * --------------------------------
+     * EYES
+     * --------------------------------
      *
-     * IMPORTANT:
-     * Direction now matches the cards.
+     * نفس اتجاه الكارد الحالي.
      *
-     * attention 0 -> positive X
-     * attention 1 -> center
-     * attention 2 -> negative X
+     * 0 = الجهة الأولى
+     * 1 = الوسط
+     * 2 = الجهة الثانية
      */
     if (rig.eyes.current) {
       rig.eyes.current.scale.y =
@@ -304,7 +467,8 @@ export function useRobotAnimation(rig: Rig) {
       if (
         p.attention === 0
       ) {
-        eyeTargetX = 0.038;
+        eyeTargetX =
+          0.038;
       } else if (
         p.attention === 1
       ) {
@@ -312,29 +476,40 @@ export function useRobotAnimation(rig: Rig) {
       } else if (
         p.attention === 2
       ) {
-        eyeTargetX = -0.038;
+        eyeTargetX =
+          -0.038;
       }
 
+      /**
+       * بعد نهاية العرض
+       * يرجع ينظر للمشاهد.
+       */
       if (s.completed) {
         eyeTargetX = 0;
       }
 
       rig.eyes.current.position.x =
         MathUtils.damp(
-          rig.eyes.current.position.x,
+          rig.eyes.current
+            .position.x,
+
           eyeTargetX,
+
           6,
           dt
         );
     }
 
     /**
-     * Happy eye expression
-     * during welcome + final scenes.
+     * --------------------------------
+     * EYE EXPRESSION
+     * --------------------------------
      */
     const happy =
-      scene.id === "welcome" ||
-      scene.id === "final";
+      scene.id ===
+        "welcome" ||
+      scene.id ===
+        "final";
 
     if (
       rig.neutralEyes.current
@@ -351,23 +526,36 @@ export function useRobotAnimation(rig: Rig) {
     }
 
     /**
-     * Glow reacts slightly to speech
-     * and mouth opening.
+     * --------------------------------
+     * SPEECH GLOW
+     * --------------------------------
+     *
+     * أثناء الكلام:
+     * الإضاءة تزيد قليلًا حسب الصوت.
+     *
+     * هذا يساعد العين تفهم مباشرة
+     * أن الصوت مرتبط بالروبوت.
      */
     if (rig.glow.current) {
-      rig.glow.current.emissiveIntensity =
+      const speechGlow =
+        speech.isSpeaking
+          ? 0.22 +
+            speakingAmount *
+              0.28 +
+            opening *
+              0.18
+          : 0;
+
+      rig.glow.current
+        .emissiveIntensity =
         MathUtils.damp(
           rig.glow.current
             .emissiveIntensity,
 
           1.25 +
-            (speech.isSpeaking
-              ? 0.25 +
-                opening *
-                  0.25
-              : 0),
+            speechGlow,
 
-          3,
+          4,
           dt
         );
     }
