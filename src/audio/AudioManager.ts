@@ -1,6 +1,5 @@
 import { audioSync } from "./AudioSyncController";
 import { scenes, type Scene } from "../data/scenes";
-import { spokenLines } from "../data/narration";
 import { EXPERIENCE } from "../config/experience";
 import { useExperience } from "../store/experienceStore";
 
@@ -9,8 +8,9 @@ import { useExperience } from "../store/experienceStore";
  *
  * Priority:
  * 1. Recorded audio files
- * 2. Browser Speech Synthesis fallback
- * 3. Subtitles only
+ * 2. Subtitles only
+ *
+ * Browser Speech Synthesis is intentionally disabled.
  *
  * Important for iPhone / Safari:
  * - AudioContext must be unlocked from a real user interaction.
@@ -506,20 +506,19 @@ export class AudioManager {
   }
 
   /**
-   * Browser speech fallback.
+   * Recorded audio only.
    *
-   * Used ONLY when no recorded file exists.
+   * Browser Speech Synthesis has been disabled intentionally.
+   * If a recorded clip exists for the current scene, it is used.
+   * Otherwise, the scene falls back to subtitles only.
    */
   private speak() {
     const scene = this.scene();
-
     const state = useExperience.getState();
 
-    /**
-     * Recorded narration wins.
-     */
     if (this.buffers.has(scene.id)) {
       this.speechDone = true;
+      this.speechAttempted = true;
 
       state.set({
         audioMode: "recorded",
@@ -528,207 +527,14 @@ export class AudioManager {
       return;
     }
 
-    /**
-     * No fallback speech available.
-     */
-    if (
-      !scene.lines.length ||
-      !("speechSynthesis" in window) ||
-      state.muted
-    ) {
-      this.speechDone = true;
-
-      state.set({
-        audioMode: "subtitles",
-      });
-
-      return;
-    }
-
+    this.speechDone = true;
     this.speechAttempted = true;
-
-    this.speechDone = false;
-
-    const gen = this.generation;
 
     audioSync.stopSpeaking();
 
-    let boundary = 0;
-
-    const lines =
-      spokenLines[scene.id] ?? [];
-
-    const text = lines.join(" ");
-
-    if (!text.trim()) {
-      this.speechDone = true;
-
-      state.set({
-        audioMode: "subtitles",
-      });
-
-      return;
-    }
-
-    const utterance =
-      new SpeechSynthesisUtterance(text);
-
-    utterance.onboundary = (event) => {
-      if (gen !== this.generation) {
-        return;
-      }
-
-      boundary = event.charIndex;
-
-      audioSync.update(
-        boundary /
-          Math.max(
-            1,
-            utterance.text.length,
-          ),
-      );
-
-      let textOffset = 0;
-
-      for (
-        let i = 0;
-        i < lines.length;
-        i++
-      ) {
-        const line = lines[i];
-
-        if (
-          boundary <
-          textOffset + line.length + 1
-        ) {
-          useExperience
-            .getState()
-            .set({
-              subtitleText:
-                scene.lines[i] ?? line,
-            });
-
-          audioSync.sentence(
-            scene.lines[i] ?? line,
-          );
-
-          break;
-        }
-
-        textOffset += line.length + 1;
-      }
-    };
-
-    utterance.lang =
-      EXPERIENCE.narrationLanguage;
-
-    utterance.rate = 1.1;
-
-    utterance.pitch = 1;
-
-    const voices =
-      window.speechSynthesis.getVoices();
-
-    utterance.voice =
-      voices.find(
-        (voice) =>
-          voice.lang.startsWith("ar") &&
-          /Hamed|Neural|Natural/i.test(
-            voice.name,
-          ),
-      ) ??
-      voices.find(
-        (voice) =>
-          voice.lang === "ar-SA",
-      ) ??
-      voices.find((voice) =>
-        voice.lang.startsWith("ar"),
-      ) ??
-      null;
-
-    /**
-     * Safari frequently has no Arabic browser voice.
-     * In that case just use subtitles.
-     */
-    if (!utterance.voice) {
-      this.speechDone = true;
-
-      state.set({
-        audioMode: "subtitles",
-      });
-
-      return;
-    }
-
-    utterance.onstart = () => {
-      if (gen !== this.generation) {
-        return;
-      }
-
-      audioSync.startSpeaking(
-        "browser",
-        scene.id,
-        scene.lines.join(" "),
-      );
-
-      audioSync.setPaused(
-        this.paused,
-      );
-    };
-
-    utterance.onend = () => {
-      if (gen !== this.generation) {
-        return;
-      }
-
-      this.speechDone = true;
-
-      audioSync.stopSpeaking();
-    };
-
-    utterance.onerror = () => {
-      if (gen !== this.generation) {
-        return;
-      }
-
-      this.speechDone = true;
-
-      audioSync.stopSpeaking();
-
-      state.set({
-        audioMode: "subtitles",
-      });
-    };
-
-    utterance.lang =
-      utterance.voice.lang;
-
-    this.utterance = utterance;
-
-    try {
-      window.speechSynthesis.cancel();
-
-      window.speechSynthesis.resume();
-
-      window.speechSynthesis.speak(
-        utterance,
-      );
-
-      state.set({
-        audioMode: "speech",
-      });
-    } catch (error) {
-      console.warn(
-        "[AudioManager] Speech synthesis failed:",
-        error,
-      );
-
-      this.speechDone = true;
-
-      state.set({
-        audioMode: "subtitles",
-      });
-    }
+    state.set({
+      audioMode: "subtitles",
+    });
   }
 
   /**

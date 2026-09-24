@@ -1,1 +1,13 @@
-{"language":"ar-SA","provider":"azure","status":"awaiting-generation","clips":{}}
+{
+  "language": "ar-SA",
+  "provider": "custom",
+  "status": "ready",
+  "clips": {
+    "welcome": "/audio/csebot/ar/01-welcome.mp3",
+    "major": "/audio/csebot/ar/02-major.mp3",
+    "careers": "/audio/csebot/ar/03-careers.mp3",
+    "club": "/audio/csebot/ar/04-club.mp3",
+    "website": "/audio/csebot/ar/05-website.mp3",
+    "final": "/audio/csebot/ar/06-final.mp3"
+  }
+}
