@@ -3,6 +3,9 @@ export type SpeechSnapshot = { isSpeaking:boolean; voiceSource:VoiceSource; spee
 /** Animation-only adapter. It never starts, schedules, or changes audio playback. */
 export class AudioSyncController {
  readonly state:SpeechSnapshot = {isSpeaking:false,voiceSource:'browser',speechProgress:0,currentSentence:'',currentSection:'',audioAmplitude:0};
+ private amplitudeReader:(()=>number)|null=null;
+ setAmplitudeReader(reader:(()=>number)|null){this.amplitudeReader=reader;}
+ sample(){if(this.amplitudeReader)this.update(this.state.speechProgress,this.amplitudeReader());return this.state;}
  private sounding=false;
  private paused=false;
  private muted=false;

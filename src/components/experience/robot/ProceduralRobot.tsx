@@ -2,12 +2,15 @@ import { useEffect, useMemo, useRef } from "react";
 import { RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
 
+import { HoverDrive } from "./HoverDrive";
 import { useRobotAnimation } from "./useRobotAnimation";
 
 const shell = {
-  color: "#e8f3f7",
-  metalness: 0.42,
-  roughness: 0.2,
+  color: "#f1f6ff",
+  metalness: 0.28,
+  roughness: 0.18,
+  clearcoat: 1,
+  clearcoatRoughness: 0.12,
 };
 
 const shellDark = {
@@ -28,7 +31,7 @@ const panel = {
   roughness: 0.22,
 };
 
-const cyan = "#59e7ff";
+const cyan = "#27cfff";
 const cyanDark = "#00b9df";
 
 function Joint({
@@ -96,7 +99,7 @@ function Arm({
         radius={0.11}
         position={[side * 0.04, 0.05, 0.01]}
       >
-        <meshStandardMaterial {...shell} />
+        <meshPhysicalMaterial {...shell} />
       </RoundedBox>
 
       {/* Shoulder accent */}
@@ -116,7 +119,7 @@ function Arm({
         radius={0.1}
         position={[0, -0.25, 0]}
       >
-        <meshStandardMaterial {...shell} />
+        <meshPhysicalMaterial {...shell} />
       </RoundedBox>
 
       {/* Upper arm panel */}
@@ -148,7 +151,7 @@ function Arm({
           radius={0.11}
           position={[0, -0.22, 0.045]}
         >
-          <meshStandardMaterial {...shell} />
+          <meshPhysicalMaterial {...shell} />
         </RoundedBox>
 
         {/* Forearm dark panel */}
@@ -185,7 +188,7 @@ function Arm({
             args={[0.24, 0.21, 0.18]}
             radius={0.068}
           >
-            <meshStandardMaterial {...shell} />
+            <meshPhysicalMaterial {...shell} />
           </RoundedBox>
 
           <RoundedBox
@@ -225,137 +228,10 @@ function Arm({
               -side * 0.45,
             ]}
           >
-            <meshStandardMaterial {...shell} />
+            <meshPhysicalMaterial {...shell} />
           </RoundedBox>
         </group>
       </group>
-    </group>
-  );
-}
-
-function Legs() {
-  return (
-    <group>
-      {/* Waist */}
-      <RoundedBox
-        args={[0.76, 0.22, 0.46]}
-        radius={0.085}
-        position={[0, -0.54, 0]}
-      >
-        <meshStandardMaterial {...shellDark} />
-      </RoundedBox>
-
-      {/* Waist center */}
-      <RoundedBox
-        args={[0.3, 0.13, 0.06]}
-        radius={0.04}
-        position={[0, -0.55, 0.245]}
-      >
-        <meshStandardMaterial {...joint} />
-      </RoundedBox>
-
-      {/* Waist energy strip */}
-      <EnergyStrip
-        position={[0, -0.55, 0.28]}
-        size={[0.18, 0.018, 0.014]}
-      />
-
-      {[-1, 1].map((side) => (
-        <group
-          key={side}
-          position={[side * 0.25, 0, 0]}
-        >
-          <Joint
-            position={[0, -0.66, 0]}
-            radius={0.108}
-          />
-
-          {/* Thigh */}
-          <RoundedBox
-            args={[0.29, 0.26, 0.3]}
-            radius={0.085}
-            position={[0, -0.76, 0]}
-          >
-            <meshStandardMaterial {...shell} />
-          </RoundedBox>
-
-          {/* Knee */}
-          <Joint
-            position={[0, -0.91, 0.025]}
-            radius={0.108}
-          />
-
-          <mesh
-            position={[0, -0.91, 0.135]}
-          >
-            <circleGeometry
-              args={[0.078, 24]}
-            />
-            <meshStandardMaterial
-              color="#416273"
-              metalness={0.82}
-              roughness={0.2}
-            />
-          </mesh>
-
-          <mesh
-            position={[0, -0.91, 0.14]}
-          >
-            <ringGeometry
-              args={[0.047, 0.058, 24]}
-            />
-            <meshBasicMaterial
-              color={cyan}
-              toneMapped={false}
-            />
-          </mesh>
-
-          {/* Shin */}
-          <RoundedBox
-            args={[0.28, 0.27, 0.31]}
-            radius={0.08}
-            position={[0, -1.065, 0.025]}
-          >
-            <meshStandardMaterial {...shell} />
-          </RoundedBox>
-
-          <RoundedBox
-            args={[0.09, 0.11, 0.018]}
-            radius={0.022}
-            position={[0, -1.06, 0.184]}
-          >
-            <meshStandardMaterial {...joint} />
-          </RoundedBox>
-
-          <Joint
-            position={[0, -1.2, 0.025]}
-            radius={0.075}
-          />
-
-          {/* Foot */}
-          <RoundedBox
-            args={[0.4, 0.17, 0.59]}
-            radius={0.07}
-            position={[0, -1.245, 0.11]}
-          >
-            <meshStandardMaterial {...shell} />
-          </RoundedBox>
-
-          <RoundedBox
-            args={[0.4, 0.05, 0.59]}
-            radius={0.018}
-            position={[0, -1.33, 0.11]}
-          >
-            <meshStandardMaterial {...joint} />
-          </RoundedBox>
-
-          {/* Foot light */}
-          <EnergyStrip
-            position={[0, -1.28, 0.407]}
-            size={[0.22, 0.016, 0.014]}
-          />
-        </group>
-      ))}
     </group>
   );
 }
@@ -394,7 +270,11 @@ export function ProceduralRobot() {
   const mouth =
     useRef<THREE.Group>(null);
 
+  const eyeMaterial = useMemo(() => new THREE.MeshBasicMaterial({color: cyan, toneMapped: false}), []);
+  useEffect(() => () => eyeMaterial.dispose(), [eyeMaterial]);
+
   useRobotAnimation({
+    eyeMaterial,
     upper,
     head,
     left,
@@ -467,7 +347,7 @@ export function ProceduralRobot() {
 
   return (
     <group>
-      <Legs />
+      <HoverDrive />
 
       <group ref={upper}>
         {/* Neck */}
@@ -496,7 +376,7 @@ export function ProceduralRobot() {
               28,
             ]}
           />
-          <meshStandardMaterial {...shell} />
+          <meshPhysicalMaterial {...shell} />
         </mesh>
 
         {/* Main torso */}
@@ -506,7 +386,7 @@ export function ProceduralRobot() {
           smoothness={6}
           position={[0, -0.025, 0]}
         >
-          <meshStandardMaterial {...shell} />
+          <meshPhysicalMaterial {...shell} />
         </RoundedBox>
 
         {/* Shoulder armor plates */}
@@ -626,11 +506,11 @@ export function ProceduralRobot() {
           position={[
             0,
             0.17,
-            0.369,
+            0.43,
           ]}
         >
           <planeGeometry
-            args={[0.38, 0.095]}
+            args={[0.5, 0.125]}
           />
           <meshBasicMaterial
             map={badge}
@@ -701,6 +581,7 @@ export function ProceduralRobot() {
         <group
           ref={head}
           position={[0, 0.96, 0]}
+          scale={1.08}
         >
           {/* Main head */}
           <RoundedBox
@@ -708,7 +589,7 @@ export function ProceduralRobot() {
             radius={0.35}
             smoothness={7}
           >
-            <meshStandardMaterial {...shell} />
+            <meshPhysicalMaterial {...shell} />
           </RoundedBox>
 
           {/* Temple side trims */}
@@ -753,6 +634,10 @@ export function ProceduralRobot() {
             />
           </RoundedBox>
 
+          {/* Electric-blue gasket around the black glass visor. */}
+          <RoundedBox args={[1.27,.78,.235]} radius={.275} smoothness={6} position={[0,-.02,.42]}>
+            <meshBasicMaterial color="#098bce" toneMapped={false}/>
+          </RoundedBox>
           {/* Face glass */}
           <RoundedBox
             args={[
@@ -835,10 +720,7 @@ export function ProceduralRobot() {
                     side * 0.06,
                   ]}
                 >
-                  <meshBasicMaterial
-                    color={cyan}
-                    toneMapped={false}
-                  />
+                  <primitive object={eyeMaterial} attach="material"/>
                 </RoundedBox>
               ))}
             </group>
@@ -855,17 +737,14 @@ export function ProceduralRobot() {
                 >
                   <torusGeometry
                     args={[
-                      0.086,
-                      0.025,
+                      0.115,
+                      0.032,
                       8,
                       24,
                       Math.PI,
                     ]}
                   />
-                  <meshBasicMaterial
-                    color={cyan}
-                    toneMapped={false}
-                  />
+                  <primitive object={eyeMaterial} attach="material"/>
                 </mesh>
               ))}
             </group>
@@ -882,8 +761,8 @@ export function ProceduralRobot() {
           >
             <RoundedBox
               args={[
-                0.15,
-                0.024,
+                0.22,
+                0.034,
                 0.018,
               ]}
               radius={0.01}
@@ -938,7 +817,7 @@ export function ProceduralRobot() {
                     28,
                   ]}
                 />
-                <meshStandardMaterial {...shell} />
+                <meshPhysicalMaterial {...shell} />
               </mesh>
 
               <mesh
@@ -964,6 +843,14 @@ export function ProceduralRobot() {
             </group>
           ))}
 
+          {/* Swept side fins and layered ear rings echo the reference silhouette. */}
+          {[-1,1].map(side=><group key={`fin-${side}`} position={[side*.7,.3,-.05]} rotation={[0,0,-side*.19]}>
+            <RoundedBox args={[.14,.57,.22]} radius={.06} position={[0,.08,0]}><meshPhysicalMaterial {...shell}/></RoundedBox>
+            <RoundedBox args={[.045,.36,.015]} radius={.012} position={[0,.11,.118]}><meshBasicMaterial color={cyan} toneMapped={false}/></RoundedBox>
+          </group>)}
+          {[-1,1].map(side=><group key={`ear-rim-${side}`} position={[side*.795,-.015,0]} rotation={[0,side*Math.PI/2,0]}>
+            <mesh><torusGeometry args={[.17,.014,8,32]}/><meshBasicMaterial color={cyan} toneMapped={false}/></mesh>
+          </group>)}
           {/* Top sensor */}
           <RoundedBox
             args={[

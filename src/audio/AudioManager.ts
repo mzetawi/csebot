@@ -100,17 +100,18 @@ export class AudioManager {
 
       this.analyser = this.context.createAnalyser();
 
-      this.analyser.fftSize = 64;
+      this.analyser.fftSize = 512;
 
       this.analyser.smoothingTimeConstant = 0.65;
 
       this.bins = new Uint8Array(
-        this.analyser.frequencyBinCount,
+        this.analyser.fftSize,
       );
 
       this.gain.connect(this.analyser);
 
       this.analyser.connect(this.context.destination);
+      audioSync.setAmplitudeReader(() => this.level());
     }
 
     try {
@@ -441,7 +442,7 @@ export class AudioManager {
      * No recording exists:
      * create silent timing buffer.
      *
-     * Speech Synthesis will provide audio fallback.
+     * Missing recordings preserve the visual clock without invented speech.
      */
     const buffer =
       recordedBuffer ??
@@ -913,27 +914,14 @@ export class AudioManager {
       return 0;
     }
 
-    this.analyser.getByteFrequencyData(
-      this.bins,
-    );
-
-    const average =
-      this.bins.reduce(
-        (sum, value) =>
-          sum + value,
-        0,
-      ) /
-      this.bins.length /
-      255;
-
-    /**
-     * Slightly amplify speech energy
-     * for more visible mouth movement.
-     */
-    return Math.min(
-      1,
-      average * 1.35,
-    );
+    // RMS measures the real waveform; the mouth controller shapes and damps it.
+    this.analyser.getByteTimeDomainData(this.bins);
+    let squares = 0;
+    for (const sample of this.bins) {
+      const centered = (sample - 128) / 128;
+      squares += centered * centered;
+    }
+    return Math.min(1, Math.sqrt(squares / this.bins.length));
   }
 
   /**
@@ -983,6 +971,7 @@ export class AudioManager {
 
     this.context = null;
 
+    audioSync.setAmplitudeReader(null);
     this.analyser = null;
 
     this.gain = null;

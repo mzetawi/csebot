@@ -6,6 +6,7 @@ import {
   MathUtils,
   type Group,
   type MeshStandardMaterial,
+  type MeshBasicMaterial,
 } from "three";
 
 import { audioSync } from "../../../audio/AudioSyncController";
@@ -27,6 +28,7 @@ import { RobotLookController } from "./RobotLookController";
 type GroupRef = RefObject<Group | null>;
 
 type Rig = {
+  eyeMaterial: MeshBasicMaterial;
   upper: GroupRef;
 
   head: GroupRef;
@@ -107,12 +109,13 @@ export function useRobotAnimation(rig: Rig) {
      * نخلي الفم يرجع يغلق،
      * لكن نوقف بقية حركة الجسم.
      */
+    const sample = audioSync.sample();
     const speech = s.paused
       ? {
-          ...audioSync.state,
+          ...sample,
           isSpeaking: false,
         }
-      : audioSync.state;
+      : sample;
 
     /**
      * --------------------------------
@@ -135,9 +138,8 @@ export function useRobotAnimation(rig: Rig) {
       speech.isSpeaking
         ? Math.min(
             1,
-            0.35 +
-              speech.audioAmplitude *
-                1.8
+            opening * 0.85 +
+              speech.audioAmplitude * 0.15
           )
         : 0;
 
@@ -147,12 +149,14 @@ export function useRobotAnimation(rig: Rig) {
      * فتح الفم أوضح أثناء الكلام
      * لكنه يبقى Smooth.
      */
+    // Imperative Three.js part refs are intentionally updated inside useFrame.
+    // oxlint-disable-next-line react/immutability
     if (rig.mouth.current) {
       const targetMouthY =
         speech.isSpeaking
           ? 1 +
             opening *
-              6.5
+              3.2
           : 1;
 
       const targetMouthX =
@@ -162,6 +166,7 @@ export function useRobotAnimation(rig: Rig) {
               0.15
           : 1;
 
+      // oxlint-disable-next-line react/immutability
       rig.mouth.current.scale.y =
         MathUtils.damp(
           rig.mouth.current
@@ -185,6 +190,7 @@ export function useRobotAnimation(rig: Rig) {
      * أثناء Pause:
      * نوقف الجسم بعد تحديث الفم.
      */
+    rig.eyeMaterial.color.setRGB(.025 + opening*.015, .58 + opening*.12, 1);
     if (s.paused) {
       return;
     }
@@ -251,10 +257,7 @@ export function useRobotAnimation(rig: Rig) {
       const speechNod =
         speech.isSpeaking &&
         !reduced
-          ? Math.sin(
-              c.time * 3.1
-            ) *
-            0.018 *
+          ? 0.025 *
             speakingAmount
           : 0;
 
@@ -291,10 +294,7 @@ export function useRobotAnimation(rig: Rig) {
       const speakingLean =
         speech.isSpeaking &&
         !reduced
-          ? Math.sin(
-              c.time * 2.2
-            ) *
-            0.008 *
+          ? 0.009 *
             speakingAmount
           : 0;
 

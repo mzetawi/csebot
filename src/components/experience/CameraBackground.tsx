@@ -1,3 +1,0 @@
-import { useEffect, useRef } from 'react';
-import { useExperience } from '../../store/experienceStore';
-export function CameraBackground({stream}:{stream:MediaStream|null}){const video=useRef<HTMLVideoElement>(null);useEffect(()=>{const element=video.current;if(!element)return;element.srcObject=stream;if(stream)void element.play().catch(()=>useExperience.getState().set({experienceState:'ERROR',error:'تعذّر تشغيل الكاميرا. جرّب مرة ثانية.',cameraReady:false}));return()=>{element.srcObject=null;};},[stream]);return <video ref={video} className={`camera-background ${stream?'visible':''}`} muted playsInline autoPlay aria-hidden="true"/>;}

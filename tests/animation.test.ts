@@ -8,12 +8,12 @@ import { inspectModel } from '../src/components/experience/robot/inspectModel';
 import { Group, Bone, Mesh, BoxGeometry, MeshBasicMaterial, AnimationClip } from 'three';
 describe('provider-neutral speech animation',()=>{
  test('mouth stays closed before start and closes on pause, mute, end and replay',()=>{
-  const sync=new AudioSyncController(),mouth=new RobotMouthController(()=>.5);
-  const settle=()=>{for(let i=0;i<80;i++)mouth.update(1/60,sync.state);};
-  settle();expect(mouth.value).toBe(0);sync.startSpeaking('browser','major');settle();expect(mouth.value).toBeGreaterThan(.3);
+  const sync=new AudioSyncController(),mouth=new RobotMouthController();
+  const settle=()=>{for(let i=0;i<80;i++){sync.update(.3,.2);mouth.update(1/60,sync.state);}};
+  settle();expect(mouth.value).toBe(0);sync.startSpeaking('audioFile','major');settle();expect(mouth.value).toBeGreaterThan(.3);
   sync.setPaused(true);settle();expect(mouth.value).toBe(0);sync.setPaused(false);settle();expect(mouth.value).toBeGreaterThan(.3);
   sync.setMuted(true);settle();expect(mouth.value).toBe(0);sync.setMuted(false);sync.stopSpeaking();settle();expect(mouth.value).toBe(0);
-  sync.startSpeaking('browser','club');settle();sync.reset();settle();expect(mouth.value).toBe(0);
+  sync.startSpeaking('audioFile','club');settle();sync.reset();settle();expect(mouth.value).toBe(0);
  });
  test('recorded speech uses real amplitude and silent intervals stay closed',()=>{
   const sync=new AudioSyncController(),mouth=new RobotMouthController();sync.startSpeaking('audioFile','major');
@@ -27,12 +27,12 @@ describe('card and gesture choreography',()=>{
   for(const scene of scenes.filter(s=>s.cards.length)){
    expect(presentationAt(scene,0).visible).toHaveLength(0);const duration=scene.end-scene.start;
    for(const cue of cardCues(scene)){
-    const before=presentationAt(scene,(cue.reveal-.3)/duration);expect(before.attention).toBe(cue.slot);expect(before.visible.some(c=>c.index===cue.index)).toBe(false);
+    const before=presentationAt(scene,(cue.reveal-.1)/duration);expect(before.attention).toBe(cue.slot);expect(before.visible.some(c=>c.index===cue.index)).toBe(false);
     const after=presentationAt(scene,(cue.reveal+.01)/duration);expect(after.visible).toHaveLength(cue.index+1);expect(after.active).toBe(cue.index);
    }
   }
  });
- test('club identity gate and replay do not expose future cards',()=>{const scene=scenes.find(s=>s.id==='club')!;expect(presentationAt(scene,.99,false).visible).toHaveLength(2);expect(presentationAt(scene,.99,true).visible).toHaveLength(3);expect(presentationAt(scene,0).visible).toHaveLength(0);});
+ test('authored revealAt controls club cards and replay resets them',()=>{const scene=scenes.find(s=>s.id==='club')!;expect(presentationAt(scene,.99,false).visible).toHaveLength(scene.cards.length);expect(presentationAt(scene,0).visible).toHaveLength(0);for(const cue of cardCues(scene))expect(cue.reveal).toBeCloseTo(scene.cards[cue.index].revealAt!*(scene.end-scene.start));});
  test('identical random values cannot select the same gesture twice consecutively',()=>{
   const c=new RobotGestureController(()=>.5),input={speaking:true,attention:null,cue:'major',transition:false,completed:false,reduced:false};let previous='';
   for(let gesture=0;gesture<8;gesture++){c.update(.05,input);expect(c.gesture.id).not.toBe(previous);previous=c.gesture.id;for(let i=0;i<72;i++)c.update(.05,input);}

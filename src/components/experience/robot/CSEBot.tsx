@@ -181,6 +181,7 @@ function Model() {
    * أثناء Pause.
    */
   useEffect(() => {
+    // oxlint-disable-next-line react/immutability
     mixer.timeScale =
       paused
         ? 0
@@ -256,7 +257,7 @@ export function CSEBot() {
 
   useFrame(
     (
-      _,
+      { viewport },
       rawDelta
     ) => {
       const state =
@@ -304,7 +305,7 @@ export function CSEBot() {
        */
       const targetX =
         websiteScene
-          ? -2.05
+          ? -viewport.width * .27
           : 0;
 
       /**
@@ -377,7 +378,7 @@ export function CSEBot() {
        * ارتفاع الروبوت الأساسي.
        *
        * رفعناه قليلًا ليناسب
-       * الجسم الجديد والأقدام الأطول.
+       * الجسم العائم وقاعدة الدفع.
        */
       const baseHeight =
         -1.28 +
@@ -555,8 +556,9 @@ export function CSEBot() {
           ? 0.84
           : 1;
 
+      const laneFit = Math.min(1, viewport.width * (websiteScene ? .27 : .36) / 3.25);
       const targetScale =
-        sceneScale *
+        sceneScale * laneFit *
         spawnEnergy.current;
 
       const currentScale =
