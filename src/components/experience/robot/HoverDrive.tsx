@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { RoundedBox } from '@react-three/drei';
-import { Vector2, DoubleSide } from 'three';
+import { Vector2, SplineCurve, DoubleSide } from 'three';
 /** Compact, tapered hover body inspired by the supplied reference; no standing legs. */
 export function HoverDrive(){
- const profile=useMemo(()=>[[.17,-.93],[.25,-.86],[.37,-.72],[.46,-.55],[.48,-.4]].map(([x,y])=>new Vector2(x,y)),[]);
+ const profile=useMemo(()=>new SplineCurve([[.17,-.93],[.25,-.86],[.37,-.72],[.46,-.55],[.48,-.4]].map(([x,y])=>new Vector2(x,y))).getPoints(24),[]);
  return <group>
   <mesh><latheGeometry args={[profile,40]}/><meshPhysicalMaterial color="#eaf5ff" metalness={.32} roughness={.2} clearcoat={1} clearcoatRoughness={.12}/></mesh>
   <mesh position={[0,-.41,0]}><cylinderGeometry args={[.46,.46,.08,40]}/><meshStandardMaterial color="#08111a" metalness={.8} roughness={.24}/></mesh>

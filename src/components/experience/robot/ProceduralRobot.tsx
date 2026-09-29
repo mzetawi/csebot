@@ -2,31 +2,32 @@ import { useEffect, useMemo, useRef } from "react";
 import { RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
 
+import { FacePanel } from "./FacePanel";
 import { HoverDrive } from "./HoverDrive";
 import { useRobotAnimation } from "./useRobotAnimation";
 
 const shell = {
-  color: "#f1f6ff",
-  metalness: 0.28,
+  color: "#edf5ff",
+  metalness: 0.32,
   roughness: 0.18,
   clearcoat: 1,
   clearcoatRoughness: 0.12,
 };
 
 const shellDark = {
-  color: "#9fb5c1",
+  color: "#c1d5e3",
   metalness: 0.68,
   roughness: 0.24,
 };
 
 const joint = {
-  color: "#112a38",
+  color: "#07131f",
   metalness: 0.88,
-  roughness: 0.28,
+  roughness: 0.23,
 };
 
 const panel = {
-  color: "#071923",
+  color: "#030c16",
   metalness: 0.72,
   roughness: 0.22,
 };
@@ -382,7 +383,7 @@ export function ProceduralRobot() {
         {/* Main torso */}
         <RoundedBox
           args={[1.04, 0.84, 0.66]}
-          radius={0.23}
+          radius={0.27}
           smoothness={6}
           position={[0, -0.025, 0]}
         >
@@ -432,8 +433,8 @@ export function ProceduralRobot() {
           position={[0, -0.04, 0.37]}
         >
           <meshStandardMaterial
-            color="#113344"
-            metalness={0.78}
+            color="#041222"
+            metalness={0.5}
             roughness={0.2}
           />
         </RoundedBox>
@@ -447,11 +448,11 @@ export function ProceduralRobot() {
           ]}
         >
           <circleGeometry
-            args={[0.115, 8]}
+            args={[0.098, 6]}
           />
           <meshStandardMaterial
             ref={glow}
-            color="#8cf5ff"
+            color="#7bddff"
             emissive={cyanDark}
             emissiveIntensity={1.5}
           />
@@ -467,9 +468,9 @@ export function ProceduralRobot() {
         >
           <ringGeometry
             args={[
-              0.13,
-              0.148,
-              8,
+              0.12,
+              0.139,
+              6,
             ]}
           />
           <meshBasicMaterial
@@ -520,6 +521,10 @@ export function ProceduralRobot() {
           />
         </mesh>
 
+        {[-1,1].map(side=><group key={`chest-seam-${side}`} position={[side*.32,-.16,.407]}>
+          <mesh><circleGeometry args={[.013,12]}/><meshBasicMaterial color="#30bcf4" toneMapped={false}/></mesh>
+          <RoundedBox args={[.008,.1,.009]} radius={.003} position={[0,-.065,0]}><meshBasicMaterial color="#1075b5"/></RoundedBox>
+        </group>)}
         {/* Chest side lights */}
         {[-1, 1].map((side) => (
           <EnergyStrip
@@ -612,56 +617,16 @@ export function ProceduralRobot() {
             </RoundedBox>
           ))}
 
-          {/* Face bezel */}
-          <RoundedBox
-            args={[
-              1.3,
-              0.81,
-              0.24,
-            ]}
-            radius={0.29}
-            smoothness={7}
-            position={[
-              0,
-              -0.025,
-              0.39,
-            ]}
-          >
-            <meshStandardMaterial
-              color="#2d5364"
-              metalness={0.83}
-              roughness={0.18}
-            />
-          </RoundedBox>
-
-          {/* Electric-blue gasket around the black glass visor. */}
-          <RoundedBox args={[1.27,.78,.235]} radius={.275} smoothness={6} position={[0,-.02,.42]}>
-            <meshBasicMaterial color="#098bce" toneMapped={false}/>
-          </RoundedBox>
-          {/* Face glass */}
-          <RoundedBox
-            args={[
-              1.24,
-              0.75,
-              0.245,
-            ]}
-            radius={0.27}
-            smoothness={7}
-            position={[
-              0,
-              -0.02,
-              0.423,
-            ]}
-          >
-            <meshPhysicalMaterial
-              color="#020b12"
-              metalness={0.5}
-              roughness={0.1}
-              clearcoat={1}
-              clearcoatRoughness={0.06}
-              transmission={0.02}
-            />
-          </RoundedBox>
+          {/* Layered, smoothly rounded visor; glossy glass inside an electric-blue bezel. */}
+          <FacePanel width={1.31} height={.81} radius={.27} depth={.045} position={[0,-.02,.442]}>
+            <meshPhysicalMaterial color="#05263c" metalness={.8} roughness={.2} clearcoat={1}/>
+          </FacePanel>
+          <FacePanel width={1.27} height={.77} radius={.255} depth={.027} position={[0,-.02,.49]}>
+            <meshPhysicalMaterial color="#0785c6" emissive="#006fbd" emissiveIntensity={.3} metalness={.48} roughness={.17} clearcoat={1}/>
+          </FacePanel>
+          <FacePanel width={1.13} height={.63} radius={.21} depth={.018} position={[0,-.02,.52]}>
+            <meshPhysicalMaterial color="#01060d" metalness={.16} roughness={.17} clearcoat={1} clearcoatRoughness={.1}/>
+          </FacePanel>
 
           {/* Face glass reflection */}
           <RoundedBox
@@ -699,30 +664,9 @@ export function ProceduralRobot() {
             ]}
           >
             <group ref={neutralEyes}>
-              {[-1, 1].map((side) => (
-                <RoundedBox
-                  key={side}
-                  args={[
-                    0.185,
-                    0.26,
-                    0.038,
-                  ]}
-                  radius={0.085}
-                  smoothness={5}
-                  position={[
-                    side * 0.267,
-                    0.015,
-                    0,
-                  ]}
-                  rotation={[
-                    0,
-                    0,
-                    side * 0.06,
-                  ]}
-                >
-                  <primitive object={eyeMaterial} attach="material"/>
-                </RoundedBox>
-              ))}
+              {[-1,1].map(side=><FacePanel key={side} width={.185} height={.26} radius={.085} depth={.01} position={[side*.267,.015,0]}>
+                <primitive object={eyeMaterial} attach="material"/>
+              </FacePanel>)}
             </group>
 
             <group ref={happyEyes}>
@@ -750,6 +694,9 @@ export function ProceduralRobot() {
             </group>
           </group>
 
+          {[-1,1].map(side=><group key={`cheek-${side}`} position={[side*.44,-.17,.55]}>
+            <RoundedBox args={[.085,.013,.01]} radius={.005}><meshBasicMaterial color="#1689b9" toneMapped={false}/></RoundedBox>
+          </group>)}
           {/* Mouth */}
           <group
             ref={mouth}
@@ -845,8 +792,8 @@ export function ProceduralRobot() {
 
           {/* Swept side fins and layered ear rings echo the reference silhouette. */}
           {[-1,1].map(side=><group key={`fin-${side}`} position={[side*.7,.3,-.05]} rotation={[0,0,-side*.19]}>
-            <RoundedBox args={[.14,.57,.22]} radius={.06} position={[0,.08,0]}><meshPhysicalMaterial {...shell}/></RoundedBox>
-            <RoundedBox args={[.045,.36,.015]} radius={.012} position={[0,.11,.118]}><meshBasicMaterial color={cyan} toneMapped={false}/></RoundedBox>
+            <RoundedBox args={[.12,.53,.2]} radius={.055} position={[0,.08,0]}><meshPhysicalMaterial {...shell}/></RoundedBox>
+            <RoundedBox args={[.04,.33,.015]} radius={.012} position={[0,.11,.118]}><meshBasicMaterial color={cyan} toneMapped={false}/></RoundedBox>
           </group>)}
           {[-1,1].map(side=><group key={`ear-rim-${side}`} position={[side*.795,-.015,0]} rotation={[0,side*Math.PI/2,0]}>
             <mesh><torusGeometry args={[.17,.014,8,32]}/><meshBasicMaterial color={cyan} toneMapped={false}/></mesh>

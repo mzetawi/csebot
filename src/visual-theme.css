@@ -1,0 +1,48 @@
+/* Reference-led surface treatment. Layout, typography, slots and UI positions are inherited. */
+.virtual-world{
+ background:radial-gradient(ellipse at 48% 51%,#062139 0%,#020e1b 34%,#01060d 63%,#000207 100%);
+}
+.virtual-world::before,.virtual-world::after{content:"";position:absolute;pointer-events:none;inset:-15%;}
+.virtual-world::before{
+ background:conic-gradient(from 15deg at 50% 52%,transparent 0deg,#007cd20a 28deg,transparent 62deg,transparent 176deg,#14c6ff0b 207deg,transparent 246deg),radial-gradient(ellipse at 34% 56%,#078ad719,transparent 39%);
+ animation:cyber-light-drift 24s ease-in-out infinite alternate;
+}
+.virtual-world::after{
+ background:linear-gradient(111deg,transparent 32%,#0c7ec906 38%,#32ceff0c 39%,transparent 40%,transparent 65%,#1691d908 69%,transparent 70%);
+ animation:cyber-light-sweep 32s ease-in-out infinite alternate;
+}
+.world-grid{opacity:.32;background-image:linear-gradient(#2cb8ed09 1px,transparent 1px),linear-gradient(90deg,#249beb09 1px,transparent 1px);}
+.ambient-halo{opacity:.75;background:radial-gradient(ellipse,#05a6f223,transparent 67%);animation:cyber-halo-breathe 12s ease-in-out infinite alternate;}
+.world-orbit{opacity:.24;border-color:#1874b629;box-shadow:0 0 25px #087bb008,inset 0 0 25px #087bb008;}
+.world-vignette{background:radial-gradient(ellipse at 49% 46%,transparent 45%,#00030b33 76%,#00040abb),linear-gradient(0deg,#00040a66,transparent 18%,transparent 88%,#00030b44);}
+@keyframes cyber-light-drift{from{transform:rotate(-7deg) scale(1);opacity:.65}to{transform:rotate(9deg) scale(1.04);opacity:1}}
+@keyframes cyber-light-sweep{from{transform:translateX(-3%);opacity:.3}to{transform:translateX(4%);opacity:.8}}
+@keyframes cyber-halo-breathe{from{transform:scale(.96);opacity:.52}to{transform:scale(1.08);opacity:.85}}
+.cards-composition .card-slot .cse-holo-card{
+ --holo-line:#39caff;--holo-cyan:#72e9ff;
+ border-color:#319fdb70;
+ background:linear-gradient(135deg,#092b45ed 0%,#051b30f2 48%,#020e1df5 100%);
+ box-shadow:0 18px 35px -15px #000c,0 0 20px #0088dc15,inset 0 1px #8edaff2b,inset 0 -1px #006bc533;
+}
+.cards-composition .card-slot.is-active .cse-holo-card{
+ border-color:#55d5ffbd;
+ background:linear-gradient(135deg,#0b3551f2,#06213af5 48%,#031326f5);
+ box-shadow:0 20px 40px -15px #000d,0 0 25px #08aeef27,0 0 5px #29bdff20,inset 0 1px #b4f1ff45,inset 0 0 25px #0078c712;
+}
+.cards-composition .card-slot .cse-holo-glass{background:radial-gradient(ellipse at 10% 0%,#51d3ff14,transparent 56%),radial-gradient(ellipse at 100% 100%,#1357dd14,transparent 52%);}
+.cards-composition .card-slot .cse-holo-ambient{background:#048df322;filter:blur(38px);}
+.cards-composition .card-slot .cse-holo-grid{opacity:.18;background-image:linear-gradient(#38bfff12 1px,transparent 1px),linear-gradient(90deg,#38bfff0d 1px,transparent 1px);}
+.cards-composition .card-slot .cse-holo-copy h2{color:#e5f6ff;text-shadow:0 0 12px #62d1ff13;}
+.cards-composition .card-slot .cse-holo-copy p{color:#b9d7e9;}
+.cards-composition .card-slot .cse-holo-eyebrow{color:#62d9ff;}
+.cards-composition .card-slot .cse-holo-corner::before,.cards-composition .card-slot .cse-holo-corner::after{background:#70e5ff;box-shadow:0 0 8px #19b4ff5c;}
+.cards-composition .card-slot.is-previous .cse-holo-card{filter:saturate(.9) brightness(.91);}
+.cards-composition .card-slot .cse-holo-terminal{background:#021225b3;border-color:#318cc44d;}
+.spatial-browser.club-window{background:#041c30eb;box-shadow:0 0 30px #168edf20,0 18px 45px #0009;}
+.spatial-browser .browser-bar{background:#0a2a43df;border-color:#4ebce740;}
+.website-glass{border-color:#67d6ff40;background:linear-gradient(115deg,transparent 8%,#72dcff10 var(--reflection,40%),transparent 68%);}
+.low-quality .virtual-world::after{display:none;}
+.low-quality .cse-holo-ambient{filter:none;opacity:.3;}
+@media(prefers-reduced-motion:reduce){
+ .virtual-world::before,.virtual-world::after,.ambient-halo{animation:none!important;transform:none;}
+}
